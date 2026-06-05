@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/airtable.js": {
-      "runtime": "nodejs20.x"
-    }
-  }
-}
