@@ -1,25 +1,27 @@
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_TABLE } = process.env;
-  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+  // Accept both UPPER and lower case env var names (Vercel may lowercase them)
+  const apiKey    = process.env.AIRTABLE_API_KEY  || process.env.airtable_api_key;
+  const baseId    = process.env.AIRTABLE_BASE_ID  || process.env.airtable_base_id;
+  const tableName = process.env.AIRTABLE_TABLE    || process.env.airtable_table || 'Leads Cyber Scoring';
+
+  if (!apiKey || !baseId) {
     return res.status(500).json({ error: 'Airtable not configured' });
   }
 
   try {
     const body = req.body;
-    const table = AIRTABLE_TABLE || 'Leads Cyber Scoring';
     const response = await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(table)}`,
+      `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}`,
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ fields: body }),
